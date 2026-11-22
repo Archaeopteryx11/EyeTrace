@@ -1,0 +1,9 @@
+# Dependencias de EyeTrace (funciona con Python 3.12, 3.13 y 3.14)
+mediapipe==1.2.2
+opencv-contrib-python>=4.8
+numpy>=1.26
+# pygame-ce (solo para main_escritorio.py) es la version comunitaria de Pygame: se usa igual
+# (import pygame) y tiene instaladores para Python 3.14
+pygame-ce>=2.5.8
+# matplotlib (solo para analisis/analizar_resultados.py): graficas de resultados
+matplotlib>=3.8

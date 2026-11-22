@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>EyeTrace · La mirada como pincel digital</title>
+<link rel="stylesheet" href="estilos.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22%3E%3Ctext y=%22.9em%22 font-size=%2290%22%3E%F0%9F%91%81%3C/text%3E%3C/svg%3E">
+</head>
+<body class="inicio">
+
+<!-- =====================================
+     BARRA LATERAL: la mirada nunca dibuja aqui
+     ===================================== -->
+<aside id="barra">
+
+  <header class="marca">
+    <h1>EyeTrace</h1>
+    <p class="lema">la mirada como pincel digital</p>
+    <button id="btn-pantalla" class="pantalla" title="Pantalla completa (F)">⛶ <kbd>F</kbd></button>
+  </header>
+
+  <section class="tarjeta camara">
+    <img id="video" src="/video" alt="Cámara con los ojos detectados">
+    <div id="estado-ojos" class="chip">Buscando tus ojos…</div>
+  </section>
+
+  <!-- Controles del dibujo -->
+  <div id="controles">
+
+    <button id="btn-pausa" class="boton grande pincel-activo" title="Pausar o seguir dibujando">
+      <span class="texto">Pincel activo</span>
+      <kbd>Espacio</kbd>
+    </button>
+
+    <section class="tarjeta">
+      <h2>Colores <kbd>1–8</kbd></h2>
+      <div id="paleta"></div>
+      <button id="btn-arcoiris" class="boton">
+        <span>Arcoíris</span><kbd>A</kbd>
+      </button>
+    </section>
+
+    <section class="tarjeta">
+      <div class="fila">
+        <h2>Grosor <kbd>−</kbd><kbd>+</kbd></h2>
+        <input id="grosor" type="range" min="2" max="40" value="10">
+      </div>
+      <div class="fila">
+        <h2>Fondo <kbd>N</kbd></h2>
+        <div id="fondos"></div>
+      </div>
+    </section>
+
+    <button id="btn-terminar" class="boton terminar"><span>Terminar y ver</span><kbd>T</kbd></button>
+
+    <section class="acciones">
+      <button id="btn-practica" class="boton mini"><span>Práctica</span><kbd>P</kbd></button>
+      <button id="btn-limpiar" class="boton mini"><span>Limpiar</span><kbd>C</kbd></button>
+      <button id="btn-recentrar" class="boton mini" title="Mira el centro 1 segundo para corregir el desfase"><span>Recentrar</span><kbd>R</kbd></button>
+      <button id="btn-recalibrar" class="boton mini"><span>Recalibrar</span><kbd>K</kbd></button>
+    </section>
+  </div>
+
+  <!-- Panel durante la evaluacion -->
+  <div id="panel-evaluacion" class="tarjeta">
+    <h2>Evaluación <span id="evaluacion-participante"></span></h2>
+    <ol id="evaluacion-pasos"></ol>
+    <p id="evaluacion-detalle" class="nota"></p>
+    <button id="btn-cancelar-evaluacion" class="boton"><span>Cancelar evaluación</span></button>
+  </div>
+
+  <!-- Panel durante la practica -->
+  <div id="panel-practica" class="tarjeta">
+    <h2 id="practica-titulo">Práctica</h2>
+    <p>Sigue el punto con la mirada. El pincel pinta solo.</p>
+    <div class="barra-progreso"><div id="practica-progreso"></div></div>
+    <p id="practica-precision" class="grande-texto">Precisión: —</p>
+    <button id="btn-terminar-practica" class="boton"><span>Terminar ya</span><kbd>T</kbd></button>
+    <button id="btn-cancelar-practica" class="boton"><span>Cancelar</span><kbd>Esc</kbd></button>
+  </div>
+
+  <!-- Ayuda durante la calibracion -->
+  <div id="ayuda-recentrar" class="tarjeta">
+    <h2>Recentrando</h2>
+    <p>Mira el punto del centro sin moverte hasta que se llene.</p>
+  </div>
+
+  <div id="ayuda-calibracion" class="tarjeta">
+    <h2>Calibrando</h2>
+    <p>Mira el centro de cada punto <b>sin mover la cabeza</b> hasta que se llene de color.</p>
+    <p>Calibra en la misma postura en la que vas a dibujar.</p>
+    <p id="progreso-calibracion" class="grande-texto">1 de 9</p>
+    <button id="btn-cancelar" class="boton"><span>Cancelar</span><kbd>Esc</kbd></button>
+  </div>
+</aside>
+
+<!-- =====================================
+     ESCENARIO: aqui dibuja la mirada
+     ===================================== -->
+<main id="escenario">
+
+  <canvas id="lienzo"></canvas>
+  <canvas id="guia"></canvas>
+  <canvas id="cursor"></canvas>
+  <div id="cuenta"></div>
+
+  <!-- Elegir figura para practicar -->
+  <section id="elegir" class="capa">
+    <div class="caja">
+      <h1>¿Qué quieres dibujar?</h1>
+      <p class="lema">sigue el punto con los ojos y la figura aparecerá</p>
+      <div id="figuras"></div>
+      <div class="velocidades">
+        <span>Velocidad:</span>
+        <button class="boton chico" data-velocidad="0.7">Lenta</button>
+        <button class="boton chico" data-velocidad="1">Normal</button>
+        <button class="boton chico" data-velocidad="1.4">Rápida</button>
+      </div>
+      <button id="btn-cerrar-elegir" class="boton chico volver"><span>Volver al dibujo libre</span><kbd>Esc</kbd></button>
+    </div>
+  </section>
+
+  <!-- Pantallas del modo evaluacion -->
+  <section id="evaluacion" class="capa">
+    <div class="caja" id="evaluacion-contenido"></div>
+  </section>
+
+  <!-- Revision de la obra antes de guardar -->
+  <section id="revision" class="capa">
+    <div class="caja">
+      <h1 id="revision-titulo">¡Tu obra!</h1>
+      <p id="revision-nota" class="lema"></p>
+      <div class="marco"><img id="revision-imagen" alt="Vista previa de la obra"></div>
+      <div id="revision-botones"></div>
+    </div>
+  </section>
+
+  <!-- Pantalla de bienvenida -->
+  <section id="bienvenida">
+    <div class="caja">
+      <h1>EyeTrace</h1>
+      <p class="lema">la mirada como pincel digital</p>
+
+      <ol class="pasos">
+        <li>Ubícate frente a la cámara, a un brazo de distancia, con la cara bien iluminada.</li>
+        <li>Calibra: mira 9 puntos sin mover la cabeza.</li>
+        <li>¡Dibuja con los ojos! Usa <kbd>Espacio</kbd> para levantar el pincel.</li>
+      </ol>
+
+      <p id="estado-bienvenida" class="chip">Buscando tus ojos…</p>
+
+      <div class="botones-bienvenida">
+        <button id="btn-calibrar" class="boton grande principal">
+          <span>Calibrar y empezar</span><kbd>Enter</kbd>
+        </button>
+        <button id="btn-guardada" class="boton" hidden>
+          <span>Usar la última calibración</span><kbd>D</kbd>
+        </button>
+        <button id="btn-evaluacion" class="boton">
+          <span>Modo evaluación</span><kbd>E</kbd>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Punto de calibracion -->
+  <div id="punto"><div class="relleno"></div></div>
+
+  <!-- Aviso cuando la cabeza se sale de la posicion de calibracion -->
+  <section id="posicion">
+    <div class="caja">
+      <h2>Vuelve a tu posición</h2>
+      <p id="posicion-pista">Mueve la cabeza hasta que el punto entre al círculo</p>
+      <canvas id="burbuja" width="320" height="320"></canvas>
+      <p class="nota-pausa">El pincel está en pausa y sigue solo cuando vuelvas</p>
+      <p id="posicion-recentrar" class="nota-pausa">¿Te acomodaste distinto? Presiona <kbd>R</kbd> para recentrar aquí</p>
+    </div>
+  </section>
+
+  <div id="aviso" role="status"></div>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
