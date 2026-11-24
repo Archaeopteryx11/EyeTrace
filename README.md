@@ -64,6 +64,10 @@ EyeTrace tiene dos partes que se comunican por HTTP en el mismo computador:
 - **Motor de visión en Python:** hace todo el procesamiento de imágenes. Captura la cámara con OpenCV, detecta landmarks con MediaPipe, estima la mirada, calibra con NumPy y registra los datos de evaluación.
 - **Interfaz web:** muestra el lienzo, la barra de herramientas, la calibración, la práctica y la evaluación. Solo dibuja; no procesa imágenes.
 
+![Arquitectura de EyeTrace](docs/img/arquitectura_eyetrace.png)
+
+Diagrama técnico detallado, con los canales de comunicación entre Python y la página:
+
 ```mermaid
 flowchart LR
     subgraph Entrada
@@ -263,7 +267,9 @@ Los datos los **capturó el equipo** con el modo evaluación de EyeTrace, en ses
 
 **Privacidad:** no se guardan imágenes ni video de la cámara, solo valores numéricos y el dibujo. Los participantes se identifican con un código (P01, P02…), nunca por su nombre, y antes de cada prueba se pide su consentimiento.
 
-**Enlace al conjunto de datos completo:** `PENDIENTE: enlace a la carpeta datos/ en Google Drive o OneDrive`
+**Enlace al conjunto de datos completo:** [carpeta `datos/` en Google Drive](https://drive.google.com/drive/folders/119IECZi0aJBaeOm4_uv8ol6bxgYgLOMW?usp=sharing)
+
+**Sesión registrada:** 1 participante (P01), 277 s de sesión y 8 153 fotogramas registrados a 1228 × 732 px de lienzo.
 
 > Los archivos por fotograma (`datos/fotogramas/`) no se suben al repositorio por su tamaño; están en el enlace anterior. Los CSV de resumen sí están en [`datos/`](datos/).
 
@@ -280,7 +286,7 @@ La interfaz es una página web local con una **barra lateral fija** (cámara, es
 | ![Aviso de posición](docs/img/05_aviso_posicion.png) **Aviso de posición:** el pincel se pausa si la cabeza se mueve | ![Elegir figura](docs/img/06_elegir_figura.png) **Práctica:** elegir figura y velocidad |
 | ![Práctica](docs/img/07_practica.png) **Práctica:** seguir el punto por la silueta punteada | ![Resultado práctica](docs/img/08_resultado_practica.png) **Resultado:** la figura y la precisión de seguimiento |
 
-> PENDIENTE: reemplazar estas capturas por capturas con la cámara real. Las actuales muestran la interfaz con una cámara simulada.
+Capturas tomadas con la cámara real durante las pruebas. En la barra lateral se ve el video procesado con los landmarks del iris dibujados por OpenCV.
 
 ### Controles principales
 
@@ -308,66 +314,125 @@ Instrucciones completas, consejos de calibración y solución de problemas: **[d
 
 ## 7. Resultados
 
-> PENDIENTE: completar con los datos reales de las pruebas. Después de las sesiones, ejecutar `python analisis/analizar_resultados.py` y copiar aquí las tablas de `resultados/resultados.md`.
+### Participantes y condiciones
 
-**Participantes:** `N` personas (`n` con lentes, `n` sin lentes) en condiciones de iluminación buena, regular y baja. Mismo computador, pantalla completa, distancia de un brazo.
+Se completó **1 sesión de evaluación registrada** (participante **P01**: sin lentes, iluminación regular, 277 s) con el modo evaluación: calibración, prueba de exactitud con 9 puntos nuevos, práctica de las tres figuras, un minuto de dibujo libre y encuesta. Además, el equipo hizo **pruebas informales con otras personas** que no se registraron en `datos/`. Sus observaciones se incluyen solo de forma cualitativa.
 
-### Resumen general
+> Con un solo participante registrado, las cifras describen el desempeño en ese caso y **no permiten generalizar** ni comparar condiciones (lentes, iluminación). Las desviaciones estándar que aparecen son entre puntos o fotogramas de la misma sesión, no entre personas.
 
-| Métrica | Media ± DE | Rango |
-|---|---|---|
-| Detección de ambos ojos | — | — |
-| Fotogramas por segundo | — | — |
-| Procesamiento por fotograma | — | — |
-| Error de exactitud | — | — |
-| Error de exactitud (% diagonal) | — | — |
-| Dispersión de la mirada | — | — |
-| Precisión en la práctica | — | — |
+### Resumen
 
-### Gráficas
+| Métrica | Resultado P01 |
+|---|---|
+| Detección de ambos ojos | **94,9 %** de los fotogramas |
+| Fotogramas por segundo | **30 FPS** (límite de la cámara) |
+| Procesamiento por fotograma | **9,4 ms** en promedio (mediana 9,1 ms; p95 10,9 ms; máximo 14,6 ms) |
+| Error de exactitud | **76 px** (5,3 % de la diagonal del lienzo) |
+| Dispersión de la mirada (RMS) | **57 px** |
+| Precisión en la práctica | **11 %** en promedio (corazón 7 %, flor 6 %, mariposa 20 %) |
 
-<!-- PENDIENTE: cuando existan los archivos en resultados/, quitar las marcas de comentario de este bloque.
+### Exactitud por punto de prueba
+
+| Punto | Posición en el lienzo | Error (px) | Desfase x / y (px) |
+|---|---|---|---|
+| 1 | arriba izquierda (0,30; 0,25) | 45 | −22 / +39 |
+| 2 | arriba derecha (0,70; 0,25) | 96 | −15 / +95 |
+| 3 | arriba centro (0,50; 0,35) | 86 | −66 / +55 |
+| 4 | centro izquierda (0,20; 0,55) | 24 | −1 / −24 |
+| 5 | centro (0,50; 0,62) | 31 | −21 / −23 |
+| 6 | centro derecha (0,80; 0,55) | 40 | −26 / +30 |
+| 7 | abajo izquierda (0,35; 0,80) | 106 | −105 / +14 |
+| 8 | abajo derecha (0,65; 0,80) | 97 | −96 / +17 |
+| 9 | esquina inferior derecha (0,92; 0,88) | 159 | −157 / +22 |
 
 | | |
 |---|---|
-| ![Exactitud por participante](resultados/fig_exactitud_participantes.png) | ![Mapa de exactitud](resultados/fig_mapa_exactitud.png) |
-| ![Precisión por figura](resultados/fig_precision_practica.png) | ![Detección](resultados/fig_deteccion.png) |
-| ![Rendimiento](resultados/fig_rendimiento.png) | ![Encuesta](resultados/fig_encuesta.png) |
+| ![Mapa de exactitud](resultados/fig_mapa_exactitud.png) | ![Exactitud](resultados/fig_exactitud_participantes.png) |
 
-![Obras de los participantes](resultados/fig_galeria_obras.png)
+### Detección de los ojos por etapa
 
--->
+| Etapa | Duración | Detección de ambos ojos | Pérdidas de detección por minuto* |
+|---|---|---|---|
+| Calibración | 25 s | 95,3 % | 17 |
+| Prueba de exactitud | 39 s | 88,4 % | **47** |
+| Práctica | 94 s | 95,7 % | 19 |
+| Dibujo libre | 65 s | 97,4 % | 17 |
 
-> Las gráficas aparecerán aquí al ejecutar `analisis/analizar_resultados.py`: exactitud por participante, mapa de exactitud, precisión por figura, detección por condición, tiempo de procesamiento, encuesta y galería de obras.
+\* Interrupciones de 2 o más fotogramas con el rostro visible pero sin ambos ojos válidos. Corresponden sobre todo a parpadeos: duran en promedio entre 90 y 170 ms.
+
+### Práctica, rendimiento y encuesta
+
+| | |
+|---|---|
+| ![Precisión por figura](resultados/fig_precision_practica.png) | ![Rendimiento](resultados/fig_rendimiento.png) |
+
+| Afirmación (escala 1 a 5) | P01 |
+|---|---|
+| Fue fácil controlar el pincel con la mirada | 3 |
+| El pincel siguió mi mirada a donde yo quería | 3 |
+| El sistema respondió rápido, sin retraso molesto | 5 |
+| La calibración fue sencilla | 5 |
+| Me sentí cómodo/a, sin cansancio en los ojos | 4 |
+| Me gustó la obra que creé | 4 |
+| Recomendaría esta experiencia a otras personas | 5 |
+
+> Comentario: *"Es muy entretenido, lo único es que se me resecan mucho los ojos a la hora de usarlo."*
+
+![Encuesta](resultados/fig_encuesta.png)
+
+![Obra del minuto de dibujo libre](resultados/fig_galeria_obras.png)
+
+Tablas completas: [`resultados/resultados.md`](resultados/resultados.md).
 
 ### Análisis
 
-> PENDIENTE: interpretar los resultados. Preguntas guía:
-> - ¿Qué tan cerca queda el pincel de donde mira la persona? ¿El error es mayor en los bordes o en las esquinas (ver la tabla de error por punto)?
-> - ¿Los lentes o la poca luz afectaron la detección o la exactitud?
-> - ¿Qué figura fue más difícil de seguir y por qué (curvas cerradas, cruces, longitud)?
-> - ¿Qué opinaron los participantes? ¿Hay relación entre la exactitud medida y la percepción en la encuesta?
-> - ¿El sistema funciona en tiempo real (FPS y tiempo de procesamiento)?
+**El sistema funciona en tiempo real.** Procesar cada fotograma (espejo, MediaPipe y cálculo de la mirada) toma 9,4 ms en promedio y nunca pasó de 14,6 ms, muy por debajo de los 33 ms que hay entre fotogramas a 30 FPS. El límite de velocidad lo pone la cámara, no el procesamiento. Esto coincide con la encuesta: la rapidez de respuesta recibió 5/5.
+
+**La detección de los ojos es estable.** Se detectaron ambos ojos en el 94,9 % de los fotogramas y llegó al 97,4 % durante el dibujo libre. La mayoría de las pérdidas son parpadeos, que el filtro de apertura descarta a propósito para que no produzcan saltos del pincel.
+
+**La exactitud depende de la zona del lienzo.** El error promedio fue de 76 px (5,3 % de la diagonal), pero no es uniforme:
+- En la **franja central** el error fue bajo, con **32 px** de promedio en los puntos 4, 5 y 6.
+- En la **franja inferior** fue **121 px** de promedio, con el máximo en la **esquina inferior derecha (159 px)**.
+- El desfase tiene una **dirección sistemática**: en los 9 puntos el pincel quedó **a la izquierda** del objetivo (−57 px en promedio), y ese desplazamiento es mayor en la franja inferior, sobre todo en la esquina inferior derecha. Esto indica que la transformación afín, que es lineal, no captura del todo la relación entre el iris y la pantalla en los extremos, donde el ojo gira más y el párpado tapa parte del iris al mirar hacia abajo.
+- La **dispersión** (57 px) es del mismo orden que el error, así que una parte importante del error se debe al temblor de la estimación y no solo al desfase.
+- Durante la prueba de exactitud el aviso de posición no se muestra. En el registro de esa etapa, que incluye también la pantalla de resultados, el 36 % de los fotogramas muestra la cabeza fuera de la tolerancia de la calibración. Parte del error puede venir de movimientos de la cabeza durante la prueba.
+
+**La práctica es la tarea más exigente.** La precisión de seguimiento fue baja (7 %, 6 % y 20 %). Esta métrica es estricta: compara el pincel con la posición **exacta y en movimiento** del punto guía, con una tolerancia de solo el 12 % del tamaño de la figura. Por eso castiga el retraso natural de la mirada al perseguir un objetivo y el desfase sistemático descrito arriba. Aun así, las figuras se reconocen: en las capturas el corazón conserva su forma, pero desplazado y más grande que la guía, que es el mismo patrón de desfase de la prueba de exactitud. La mariposa obtuvo la mejor precisión, posiblemente porque sus alas pasan varias veces por el centro del lienzo, la zona con menor error.
+
+**Mantener la mirada fija cansa los ojos.** En la prueba de exactitud, donde hay que fijar la mirada en cada punto, las pérdidas de detección subieron a **47 por minuto**, casi el triple que en el dibujo libre (17 por minuto), y la detección bajó al 88,4 %. Coincide con lo que reportaron la participante (*"se me resecan mucho los ojos"*) y las personas de las pruebas informales: la calibración y la práctica resultaron lo más difícil porque obligan a mantener los ojos abiertos y fijos por más tiempo.
+
+**La experiencia fue positiva.** La participante calificó con 5 la rapidez, la sencillez de la calibración y la recomendación a otras personas, y con 4 su obra y la comodidad. La facilidad de control y la exactitud percibida quedaron en 3 (neutral), lo que coincide con el error medido. En las pruebas informales, a la mayoría de las personas les gustó la experiencia.
 
 ---
 
 ## 8. Conclusiones
 
-> PENDIENTE: redactar a partir de los resultados. Estructura sugerida:
-
 **Logros**
-- Relación de cada objetivo específico con lo alcanzado (análisis de técnicas, arquitectura, prototipo funcional, validación con usuarios).
-- Resultados cuantitativos más importantes.
+
+- Se cumplieron los objetivos específicos:
+  - se analizaron y seleccionaron técnicas de detección ocular con cámara web (landmarks de MediaPipe, posición relativa del iris, filtrado de parpadeos y suavizado);
+  - se diseñó una arquitectura que separa el procesamiento de imágenes de la interfaz;
+  - se implementó un prototipo funcional que dibuja con la mirada en tiempo real;
+  - se validó con un modo de evaluación que mide exactitud, detección, rendimiento y experiencia.
+- EyeTrace logra que una persona **dibuje solo con la mirada** usando una cámara web común. Los trazos siguen la dirección de la mirada y producen obras abstractas que los usuarios disfrutaron.
+- El procesamiento es **ampliamente de tiempo real** (9,4 ms por fotograma a 30 FPS) y la detección de los ojos es **estable** (95 %).
+- La calibración por persona, con mínimos cuadrados, permite que el sistema funcione con distintos usuarios. El error es menor en la zona central del lienzo (~32 px).
 
 **Limitaciones**
-- Una cámara web común no tiene la precisión de un eye tracker infrarrojo profesional.
-- La estimación depende de la iluminación y de mantener la cabeza en la posición de calibración.
-- Las que muestren los datos (lentes, poca luz, zonas de la pantalla con más error).
+
+- **Se registró una sola sesión de evaluación**, así que los resultados no se pueden generalizar ni permiten comparar condiciones como lentes o iluminación.
+- Una cámara web común no alcanza la exactitud de un eye tracker infrarrojo: el error crece hacia la parte inferior y las esquinas del lienzo (hasta 159 px).
+- **Mantener la calibración** exige que la cabeza no se mueva. El aviso de posición ayuda, pero sigue siendo la principal fuente de error.
+- La calibración y el modo práctica **cansan y resecan los ojos**, porque obligan a fijar la mirada por varios segundos seguidos.
+- La métrica de precisión de la práctica es muy estricta y no refleja del todo que las figuras sí se reconocen.
 
 **Trabajo futuro**
-- Compensar el movimiento de la cabeza dentro del modelo de mirada, no solo avisar.
-- Calibración con más puntos o un modelo no lineal.
-- Reglas artísticas basadas en fijaciones, velocidad o dilatación de la pupila.
+
+- Evaluar con **más participantes** (8–10) y variar a propósito lentes e iluminación.
+- Usar un **modelo de calibración no lineal** (por ejemplo, polinomial de segundo grado) o más puntos en los bordes para reducir el error en las esquinas.
+- **Compensar el movimiento de la cabeza** dentro del modelo de la mirada, no solo avisar.
+- Hacer la calibración y la práctica **más cortas o con pausas** para reducir el cansancio visual, y medir la práctica respecto a la forma de la figura en lugar del punto exacto.
+- Explorar **reglas artísticas** basadas en fijaciones, velocidad de la mirada o tamaño de la pupila.
 
 ---
 
