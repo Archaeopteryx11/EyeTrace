@@ -5,7 +5,7 @@
 **Universidad Autónoma de Occidente · Procesamiento Digital de Imágenes · 2026-2**
 **Profesor:** Nicolás Llanos Neuta
 **Integrantes:** Sofía Aguiar Arana · Valery Pastas Ávila · Valeria Polanco Muñoz
-**Video demostrativo:** [Ver video]  ·  
+**Video demostrativo:** [Ver video](https://drive.google.com/file/d/1O6VMlxB0qlgrUGt7ywTe43waU2vF9dLs/view?usp=drive_link)·  
 **Póster:** [Ver póster](https://drive.google.com/file/d/1Cq1qxBOvJW4tMYeRtW18qE9k5NQ_Kfqe/view?usp=drive_link)
 **Diapositivas:** [Presentación](https://gamma.app/docs/EyeTrace-ss9wp0aj3u0zd7o) · 
 **Datos Drive:**[Datos en Drive](https://drive.google.com/drive/folders/119IECZi0aJBaeOm4_uv8ol6bxgYgLOMW?usp=sharing)**
