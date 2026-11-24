@@ -1,0 +1,2 @@
+sesion,participante,fecha,lentes,iluminacion,notas,ancho_lienzo_px,alto_lienzo_px,fotogramas,tasa_deteccion_pct,fps_promedio,procesamiento_ms_promedio,error_medio_px,error_medio_pct,dispersion_media_px,precision_practica_pct,duracion_s
+P01_20261123_225051,P01,2026-11-23 22:50,no,regular,,1228,732,6737,94.9,30.0,9.4,76.0,5.32,56.9,11.0,277.0
